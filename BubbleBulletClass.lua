@@ -31,7 +31,7 @@ BubbleBulletClass.update = function(bbullet, dt)
 	end
 	-- collision with bubble
 	for _,bubble in ipairs(bubbles) do
-		if (distance2Entities(bbullet, bubble) <= (bubbleRadius + bbulletRadius)) then
+		if (not bubble.dead and distance2Entities(bbullet, bubble) <= (bubbleRadius + bbulletRadius)) then
 			sound_stick:play()
 			-- create new bubble
 			local _angle = bafaltomAngle2Entities(bubble, bbullet)
@@ -57,13 +57,14 @@ BubbleBulletClass.draw = function(bbullet)
 end
 
 BubbleBulletClass.remove = function(bbullet)
+	bbullet.sx = 0
+	bbullet.sy = 0
 	for n,eachBb in ipairs(bbullet.player.bullets) do
 		if(eachBb.id == bbullet.id) then
 			table.remove(bbullet.player.bullets, n)
 			return
 		end
 	end
-	error("bbullet.remove : id "..id.." not found")
 end
 
 BubbleBulletClass.size = function(bbullet)

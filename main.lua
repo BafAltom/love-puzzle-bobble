@@ -14,16 +14,29 @@ function love.load()
 	yOffset = 0
 	PAUSE = false
 
-	table.insert(bubbles, BubbleClass.newRoot(wScr/2, getRandomColor()))
+	for i=1,5 do
+		local _randX = math.random(world.leftWall, world.rightWall)
+		local _randY = math.random(world.ceiling, hScr-playerRadius)
+		table.insert(player.bullets, BubbleBulletClass.new(player, _randX, _randY, getRandomColor()))
+	end
 end
 
 function love.update(dt)
+	-- world (wall & ceiling)
 	world:update(dt)
-	player:update(dt)
 
-	for _,b in ipairs(bubbles) do
+	-- bubbles
+	for k,b in ipairs(bubbles) do
 		b:update(dt)
 	end
+	for _,bid in ipairs(bubblesIdToRemove) do
+		bubbles.removeID(bid)
+	end
+	bubblesIdToRemove = {}
+
+	-- player
+	player:update(dt)
+
 end
 
 function love.draw()
@@ -48,5 +61,7 @@ end
 function love.keyreleased(k)
 	if (k == "d") then
 		bubbles:printTree()
+	elseif (k == "p") then
+		DEBUG = not DEBUG
 	end
 end

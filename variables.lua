@@ -1,26 +1,30 @@
 -- sizes are in px
 -- speeds are in px/s
+-- times are in s
 
 wScr = love.graphics.getWidth()
 hScr = love.graphics.getHeight()
 DEBUG = false
 
-bubbleRadius = 30
+bubbleRadius = 20
 bubbleColors = {{255,0,0}, {0,255,0}, {0,0,255}, {255,255,255}}
 bubbleColorNbr = #bubbleColors
 bubbleSequenceSize = 3
+bubbleDropDeadInitialSpeed = 200
+bubbleDeadDropAcc = 100 -- (px/s)/s
 
 function getRandomColor()
 	return math.random(bubbleColorNbr)
 end
 
 playerRadius = 50
+playerCoolDown = 1
 
 bbulletRadius = bubbleRadius
 bbulletSpeed = 1000
 
-uiSize = 20
-ceilingDropTime = 0.1
+uiSize = 100
+ceilingDropTime = 1
 ceilingDropSize = 1
 
 function round(num) 

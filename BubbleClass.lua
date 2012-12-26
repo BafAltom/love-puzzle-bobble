@@ -19,24 +19,84 @@ end
 -- CLASS METHODS
 
 BubbleClass.update = function(bubble, dt)
-	if (bubble:numberOfSameColorChild() >= (bubbleSequenceSize - 1)) then
-		bubble:recursiveRemove()
+	if (bubble.colorMatchCount >= (bubbleSequenceSize - 1)) then
+		bubble:triggerDead()
+	end
+
+	if (not bubble:isRoot() and not bubble.dead) then
+		if (bubble.father.dead) then bubble.dead = true end
+	end
+
+	if (bubble.dead) then
+		bubble.deadOffsetSpeed = bubble.deadOffsetSpeed + bubbleDeadDropAcc*dt
+		bubble.deadOffset = bubble.deadOffset + bubble.deadOffsetSpeed*dt
+		if (bubble:getY() > hScr + bubbleRadius) then
+			table.insert(bubblesIdToRemove, bubble.id)
+			if (not bubble:isRoot()) then
+				bubble.father:removeChild(bubble.id)
+			end
+		end
 	end
 end
 
-BubbleClass.numberOfSameColorChild = function(bubble)
-	cnt = 0
-	for _,bubChild in ipairs(bubble.children) do
-		if (bubChild:sameColorAs(bubble)) then
-			cnt = cnt + 1 + bubChild:numberOfSameColorChild()
+BubbleClass.isChildOf = function(bubble,candidateFatherBubble)
+	for _,bubChild in ipairs(candidateFatherBubble.children) do
+		if (bubble.id == bubChild.id) then return true end
+	end
+	return false
+end
+
+BubbleClass.removeChild = function(bubble, childID)
+	for n,bubChild in ipairs(bubble.children) do
+		if (bubChild.id == childID) then
+			table.remove(bubble.children, n)
+			break
 		end
 	end
-	return cnt
+end
+
+BubbleClass.addMatch = function(bubble, matchedBubble)
+	if (bubble.colorMatchDict[matchedBubble] == nil) then
+		bubble.colorMatchDict[matchedBubble] = true
+		bubble.colorMatchCount = bubble.colorMatchCount + 1
+	end
+end
+
+BubbleClass.searchForColorMatch = function(bubble)
+	for _,eachB in ipairs(bubbles) do
+		if (distance2Entities(bubble, eachB) <= (2.5*bubbleRadius)
+		and bubble:sameColorAs(eachB)) then
+			-- match this bubble
+			bubble:addMatch(eachB)
+			-- match this bubble's matches
+			for bubMatch in pairs(eachB.colorMatchDict) do
+				bubble:addMatch(bubMatch)
+			end
+			-- match ourself for the other bubble
+			eachB:addMatch(bubble)
+		end
+	end
 end
 
 BubbleClass.draw = function(bubble)
-	love.graphics.setColor(bubbleColors[bubble.color])
+	local _col = bubbleColors[bubble.color]
+	love.graphics.setColor(_col[1], _col[2], _col[3])
 	love.graphics.circle("fill", bubble:getX(), bubble:getY(), bubble:size()) 
+
+	if (DEBUG) then
+		-- parent line
+		for _,eachChild in ipairs(bubble.children) do
+			love.graphics.setColor(0,0,0)
+			love.graphics.line(bubble:getX(), bubble:getY(), eachChild:getX(), eachChild:getY())
+		end
+		-- internal status
+		love.graphics.setColor(0,0,0)
+		love.graphics.print(bubble.id.."\n"..bubble.colorMatchCount, bubble:getX(), bubble:getY() - 10)
+	end
+	if (bubble.dead) then
+		love.graphics.setColor(255,255,255)
+		love.graphics.circle("line", bubble:getX(), bubble:getY(), bubble:size())
+	end
 end
 
 BubbleClass.isRoot = function(bubble)
@@ -62,18 +122,25 @@ end
 
 BubbleClass.getY = function(bubble)
 	if (bubble:isRoot()) then
-		return bubble:size() + world.ceiling
+		return bubble:size() + world.ceiling + bubble.deadOffset
 	else
 		-- trigonometry, deal with it
-		return bubble.father:getY() + math.sin(bubble.angle)*(bubble:size() + bubble.father:size())
+		return bubble.father:getY() + math.sin(bubble.angle)*(bubble:size() + bubble.father:size()) + bubble.deadOffset
 	end
 end
 
-BubbleClass.recursiveRemove = function(bubble)
-	for _,b in ipairs(bubble.children) do
-		b:recursiveRemove()
+BubbleClass.triggerDead = function(bubble)
+	if (bubble.dead == false) then
+		bubble.dead = true
+
+		-- initial speed
+		bubble.deadOffsetSpeed = bubbleDropDeadInitialSpeed
+
+		-- make the near match die too
+		for bubMatch in pairs(bubble.colorMatchDict) do
+			bubMatch:triggerDead()
+		end
 	end
-	bubbles.removeID(bubble.id)
 end
 
 BubbleClass.asString = function(bubble, level)
@@ -91,22 +158,24 @@ end
 
 BubbleClass.nearestAcceptedX = function(x)
 	local _slot = round(x/(2*bubbleRadius))
-	return bubbleRadius + (_slot*2*bubbleRadius)
+	return _slot*2*bubbleRadius
 end
 
 BubbleClass.nearestAcceptedAngle = function(a)
-	print ":-)"
+	local _slot = round(a/(math.pi/3))
+	return (_slot*(math.pi/3))
 end
 
 BubbleClass.newRoot = function(x,c)
-	return BubbleClass.new(nil, nil, x,c)
+	local _newX = BubbleClass.nearestAcceptedX(x)
+	return BubbleClass.new(nil, nil, _newX,c)
 end
 
 BubbleClass.newChild = function(f,a,c)
-	child = BubbleClass.new(f,a,nil,c)
+	local _newA = BubbleClass.nearestAcceptedAngle(a)
+	child = BubbleClass.new(f,_newA,nil,c)
 	table.insert(f.children, child)
 	return child
-
 end
 
 BubbleClass.new = function(father, angle, x, color)
@@ -117,10 +186,13 @@ BubbleClass.new = function(father, angle, x, color)
 	setmetatable(bubble, {__index = BubbleClass})
 
 	bubble.id = BubbleClass.getNextID()
-	bubble.father = nil
+	bubble.father = nil -- do not trust this too much, only contains one father
 	bubble.x = nil
 	bubble.angle = nil
 	bubble.color = color
+	bubble.dead = false
+	bubble.deadOffset = 0
+	bubble.deadOffsetSpeed = 0
 
 	if (father ~= nil) then
 		bubble.father = father
@@ -128,14 +200,18 @@ BubbleClass.new = function(father, angle, x, color)
 	elseif (x ~= nil) then
 		bubble.x = x
 	end
-
 	bubble.children = {}
+
+	bubble.colorMatchDict = {} -- dictionary with bubble as key and true/nil as value
+	bubble.colorMatchCount = 0
+	bubble:searchForColorMatch()
 	return bubble
 end
 
 ---------------------------------------------------------------
 
 bubbles = {}
+bubblesIdToRemove = {}
 
 bubbles.getID = function(id)
 	for _, b in ipairs(bubbles) do
@@ -143,7 +219,6 @@ bubbles.getID = function(id)
 			return b
 		end
 	end
-	error("bubbles.getID : id "..id.." not found")
 	return nil
 end
 
@@ -154,7 +229,7 @@ bubbles.removeID = function(id)
 			return
 		end
 	end
-	error("bubbles.removeID : id "..id.." not found")
+	print("id "..id.." not found")
 end
 
 bubbles.printTree = function(bubbleList)

@@ -26,12 +26,21 @@ PlayerClass.update = function(player, dt)
 	for _, bb in ipairs(player.bullets) do
 		bb:update(dt)
 	end
+
+	if (player.coolDown > 0) then
+		player.coolDown = player.coolDown - dt
+	end
 end
 
 PlayerClass.draw = function(player)
 	love.graphics.setColor(bubbleColors[player.nextBulletColor])
 	love.graphics.circle("fill", player:getX(), player:getY(), player:size())
 	love.graphics.line(player:getX(), player:getY(), player:getX()+math.cos(player.orientation)*100, player:getY() + math.sin(player.orientation)*100)
+
+	if (DEBUG) then
+		love.graphics.setColor(0,0,0)
+		love.graphics.print(player.coolDown, player:getX(), player:getY())
+	end
 
 	for _, bb in ipairs(player.bullets) do
 		bb:draw()
@@ -51,9 +60,13 @@ PlayerClass.getY = function(player)
 end
 
 PlayerClass.shoot = function(player, x,y)
-	sound_shoot:play()
-	table.insert(player.bullets, BubbleBulletClass.new(player, x,y,player.nextBulletColor))
-	player.nextBulletColor = getRandomColor()
+	if (player.coolDown > 0) then
+		-- TODO : empty click sound
+	else
+		sound_shoot:play()
+		table.insert(player.bullets, BubbleBulletClass.new(player, x,y,player.nextBulletColor))
+		player.nextBulletColor = getRandomColor()
+	end
 end
 
 -------------------------------------------------------------------
@@ -69,6 +82,7 @@ PlayerClass.new = function()
 
 	player.bullets = {}
 	player.nextBulletColor = getRandomColor()
+	player.coolDown = 0
 	return player
 end
 
