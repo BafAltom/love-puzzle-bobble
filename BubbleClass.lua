@@ -134,7 +134,7 @@ BubbleClass.triggerDead = function(bubble)
 		bubble.dead = true
 
 		-- initial speed
-		bubble.deadOffsetSpeed = bubbleDropDeadInitialSpeed
+		bubble.deadOffsetSpeed = bubbleDropInitialSpeed + math.random(-bubbleDropInitSpeedNoise/2, bubbleDropInitSpeedNoise/2)
 
 		-- make the near match die too
 		for bubMatch in pairs(bubble.colorMatchDict) do
@@ -157,7 +157,11 @@ end
 -------------------------------------------------------------------
 
 BubbleClass.nearestAcceptedX = function(x)
+	local _maxSlot = (world.rightWall - world.leftWall)/(2*bubbleRadius) + 1
+	local _minSlot = 0
 	local _slot = round(x/(2*bubbleRadius))
+	_slot = math.max(_minSlot, _slot)
+	_slot = math.min(_maxSlot, _slot)
 	return _slot*2*bubbleRadius
 end
 

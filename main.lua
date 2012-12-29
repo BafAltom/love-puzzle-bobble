@@ -22,6 +22,7 @@ function love.load()
 end
 
 function love.update(dt)
+
 	-- world (wall & ceiling)
 	world:update(dt)
 
@@ -36,7 +37,6 @@ function love.update(dt)
 
 	-- player
 	player:update(dt)
-
 end
 
 function love.draw()

@@ -10,8 +10,9 @@ bubbleRadius = 20
 bubbleColors = {{255,0,0}, {0,255,0}, {0,0,255}, {255,255,255}}
 bubbleColorNbr = #bubbleColors
 bubbleSequenceSize = 3
-bubbleDropDeadInitialSpeed = 200
-bubbleDeadDropAcc = 100 -- (px/s)/s
+bubbleDropInitialSpeed = -250
+bubbleDropInitSpeedNoise = 150
+bubbleDeadDropAcc = 750 -- (px/s)/s
 
 function getRandomColor()
 	return math.random(bubbleColorNbr)
@@ -25,7 +26,7 @@ bbulletSpeed = 1000
 
 uiSize = 100
 ceilingDropTime = 1
-ceilingDropSize = 1
+ceilingDropSize = 10
 
 function round(num) 
 	if num >= 0 then return math.floor(num+.5) 

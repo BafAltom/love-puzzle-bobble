@@ -25,9 +25,12 @@ BubbleBulletClass.update = function(bbullet, dt)
 	bbullet.y = bbullet.y + bbullet.sy*dt
 
 	-- collision with wall
-	if (bbullet.x < bbulletRadius + world.leftWall or bbullet.x > world.rightWall-bbulletRadius) then
+	if (bbullet.x < bbulletRadius + world.leftWall) then
 		sound_bounce:play()
-		bbullet.sx = -1*bbullet.sx
+		bbullet.sx = math.abs(bbullet.sx)
+	elseif (bbullet.x > world.rightWall-bbulletRadius) then
+		sound_bounce:play()
+		bbullet.sx = -1*math.abs(bbullet.sx)
 	end
 	-- collision with bubble
 	for _,bubble in ipairs(bubbles) do
