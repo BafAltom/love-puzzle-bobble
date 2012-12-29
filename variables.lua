@@ -6,8 +6,18 @@ wScr = love.graphics.getWidth()
 hScr = love.graphics.getHeight()
 DEBUG = false
 
+bubbleInit_ProbaChild = 0.5
 bubbleRadius = 20
-bubbleColors = {{255,0,0}, {0,255,0}, {0,0,255}, {255,255,255}}
+bubbleColors =
+	{
+		{255,0,0},
+		{0,255,0},
+		{0,0,255},
+		{255,255,0},
+		{255,0,255},
+		{0,255,255},
+		{255,255,255}
+	}
 bubbleColorNbr = #bubbleColors
 bubbleSequenceSize = 3
 bubbleDropInitialSpeed = -250
@@ -25,8 +35,9 @@ bbulletRadius = bubbleRadius
 bbulletSpeed = 1000
 
 uiSize = 100
-ceilingDropTime = 1
-ceilingDropSize = 10
+wWorld = wScr - uiSize
+ceilingDropTime = 2
+ceilingDropSize = 5
 
 function round(num) 
 	if num >= 0 then return math.floor(num+.5) 

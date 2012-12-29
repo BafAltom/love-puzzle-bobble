@@ -14,10 +14,15 @@ function love.load()
 	yOffset = 0
 	PAUSE = false
 
-	for i=1,5 do
-		local _randX = math.random(world.leftWall, world.rightWall)
-		local _randY = math.random(world.ceiling, hScr-playerRadius)
-		table.insert(player.bullets, BubbleBulletClass.new(player, _randX, _randY, getRandomColor()))
+	for i =1,math.floor(wWorld/(2*bubbleRadius) - 2) do
+		local newBubble = BubbleClass.newRoot((world.leftWall+(1+2*(i-1))*bubbleRadius), getRandomColor())
+		local bubChild = nil
+		table.insert(bubbles, newBubble)
+		while (math.random() < bubbleInit_ProbaChild) do
+			bubChild = BubbleClass.newChild(newBubble, (math.pi/3), getRandomColor())
+			table.insert(bubbles, bubChild)
+			newBubble = bubChild
+		end
 	end
 end
 

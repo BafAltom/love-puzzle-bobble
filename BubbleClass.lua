@@ -94,7 +94,7 @@ BubbleClass.draw = function(bubble)
 		love.graphics.print(bubble.id.."\n"..bubble.colorMatchCount, bubble:getX(), bubble:getY() - 10)
 	end
 	if (bubble.dead) then
-		love.graphics.setColor(255,255,255)
+		love.graphics.setColor(255,255,255, 100)
 		love.graphics.circle("line", bubble:getX(), bubble:getY(), bubble:size())
 	end
 end
@@ -157,8 +157,8 @@ end
 -------------------------------------------------------------------
 
 BubbleClass.nearestAcceptedX = function(x)
-	local _maxSlot = (world.rightWall - world.leftWall)/(2*bubbleRadius) + 1
-	local _minSlot = 0
+	local _maxSlot = (world.rightWall + bubbleRadius)/(2*bubbleRadius)
+	local _minSlot = (world.leftWall + bubbleRadius)/(2*bubbleRadius)
 	local _slot = round(x/(2*bubbleRadius))
 	_slot = math.max(_minSlot, _slot)
 	_slot = math.min(_maxSlot, _slot)
