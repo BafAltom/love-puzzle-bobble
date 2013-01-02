@@ -170,13 +170,27 @@ BubbleClass.nearestAcceptedAngle = function(a)
 	return (_slot*(math.pi/3))
 end
 
+BubbleClass.busySlot = function(x,y, bubbleCollections)
+	for _, b in ipairs(bubbleCollections) do
+		if (b:getX() == x and b:getY() == y) then
+			return true
+		end
+	end
+	return false
+end
+
 BubbleClass.newRoot = function(x,c)
+	assert (not BubbleClass.busySlot(x,0, bubbles), "There is already a bubble here!")
 	local _newX = BubbleClass.nearestAcceptedX(x)
 	return BubbleClass.new(nil, nil, _newX,c)
 end
 
 BubbleClass.newChild = function(f,a,c)
 	local _newA = BubbleClass.nearestAcceptedAngle(a)
+	assert (not BubbleClass.busySlot(
+		f:getX() + math.cos(_newA)*(bubbleRadius + f:size()),
+		f:getY() + math.cos(_newA)*(bubbleRadius + f:size()),
+		bubbles), "There is already a bubble here!")
 	child = BubbleClass.new(f,_newA,nil,c)
 	table.insert(f.children, child)
 	return child
@@ -243,4 +257,25 @@ bubbles.printTree = function(bubbleList)
 		end
 	end
 	print "-----"
+end
+
+bubbles.initialize = function()
+	for i =1,math.floor(wWorld/(2*bubbleRadius) - 2) do
+		local newBubble = BubbleClass.newRoot((world.leftWall+(1+2*(i-1))*bubbleRadius), getRandomColor())
+		local bubChild, angle = nil, nil
+		table.insert(bubbles, newBubble)
+		while (math.random() < bubbleInit_ProbaChild[world.level]) do
+			-- choose angle of the child
+			angle = (math.random() < 0.5) and math.pi/3 or 2*(math.pi/3) -- basically : choose one of the two randomly
+			if (newBubble:getX() < world.leftWall + 2*bubbleRadius) then
+				angle = (math.pi/3)
+			elseif (newBubble:getX() > world.rightWall - 2*bubbleRadius) then
+				angle = 2*(math.pi/3)
+			end
+			-- generate child
+			bubChild = BubbleClass.newChild(newBubble, angle, getRandomColor())
+			table.insert(bubbles, bubChild)
+			newBubble = bubChild
+		end
+	end
 end

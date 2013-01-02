@@ -1,16 +1,53 @@
 require "variables"
 
 world = {}
-world.leftWall = uiSize
-world.rightWall = wScr - uiSize
-world.ceiling = 0
 
-world.timer = 0
+world.level = 1
+
+world.initialize = function(world)
+	world.leftWall = uiSize
+	world.rightWall = wScr - uiSize
+
+	world.ceiling = 0
+	world.ceilTimer = 0
+
+	world.triggerWin = false
+	world.triggerLost = false
+end
+
+world.levelUp = function(world)
+	if (world.level < maxLevel) then
+		world.level = world.level + 1
+	end
+end
+
+world:initialize()
+
 world.update = function(world, dt)
-	world.timer = world.timer + dt
-	if (world.timer >= ceilingDropTime) then
-		world.ceiling = world.ceiling + ceilingDropSize
-		world.timer = 0
+	world.ceilTimer = world.ceilTimer + dt
+	if (world.ceilTimer >= ceilingDropTime[world.level]) then
+		world.ceiling = world.ceiling + ceilingDropSize[world.level]
+		world.ceilTimer = 0
+	end
+
+	-- bubbles
+	for k,b in ipairs(bubbles) do
+		b:update(dt)
+	end
+	-- check for lost condition
+	for k,b in ipairs(bubbles) do
+		if (not b.dead and b:getY() > player:getY()) then
+			world.triggerLost = true
+		end
+	end
+	-- remove "lost" bubbles
+	for _,bid in ipairs(bubblesIdToRemove) do
+		bubbles.removeID(bid)
+	end
+	bubblesIdToRemove = {}
+
+	if (#bubbles == 0) then
+		world.triggerWin = true
 	end
 end
 
@@ -20,4 +57,9 @@ world.draw = function(world)
 	love.graphics.setColor(255,255,255)
 	love.graphics.line(world.leftWall, 0, world.leftWall,hScr)
 	love.graphics.line(world.rightWall, 0, world.rightWall,hScr)
+
+	-- bubbles
+	for _,b in ipairs(bubbles) do
+		b:draw()
+	end
 end

@@ -6,8 +6,7 @@ wScr = love.graphics.getWidth()
 hScr = love.graphics.getHeight()
 DEBUG = false
 
-bubbleInit_ProbaChild = 0.5
-bubbleRadius = 20
+bubbleRadius = 30 -- 20
 bubbleColors =
 	{
 		{255,0,0},
@@ -34,12 +33,39 @@ playerCoolDown = 1
 bbulletRadius = bubbleRadius
 bbulletSpeed = 1000
 
+
 uiSize = 100
 wWorld = wScr - uiSize
-ceilingDropTime = 2
-ceilingDropSize = 5
+maxLevel = 3
+ceilingDropTime = {1, 0.1, 0.01}
+ceilingDropSize = {1, 1, 1}
+bubbleInit_ProbaChild = {0.01, 0.2, 0.3}
 
 function round(num) 
 	if num >= 0 then return math.floor(num+.5) 
 	else return math.ceil(num-.5) end
 end
+
+function drawDashedLine(x1, y1, x2, y2, lineSize, dashSize)
+	_a = bafaltomAngle(x1, y1, x2, y2)
+	_d = distance2Points(x1, y1, x2, y2)
+	_lineX = lineSize*math.cos(_a)
+	_lineY = lineSize*math.sin(_a)
+	_dashX = dashSize*math.cos(_a)
+	_dashY = dashSize*math.sin(_a)
+	_curX, _curY = x1, y1
+	while (_curY > 0 and distance2Points(x1, y1, _curX + _lineX, _curY + _lineY) < _d) do
+		love.graphics.line(_curX, _curY, _curX + _lineX, _curY + _lineY)
+		_curX = _curX + _lineX + _dashX
+		_curY = _curY + _lineY + _dashY
+	end
+	-- draw next line
+	love.graphics.line(_curX, _curY, x2, y2)
+end
+
+
+
+-- ASSERTIONS
+assert (maxLevel == #ceilingDropTime)
+assert (#bubbleInit_ProbaChild == #ceilingDropTime)
+assert (#ceilingDropSize == #ceilingDropTime)

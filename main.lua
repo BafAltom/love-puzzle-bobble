@@ -1,5 +1,3 @@
-
-
 function love.load()
 
 	require "variables"
@@ -9,47 +7,40 @@ function love.load()
 	require "PlayerClass"
 	require "BubbleBulletClass"
 	require "world"
+	require "menu"
 
 	xOffset = 0
 	yOffset = 0
 	PAUSE = false
 
-	for i =1,math.floor(wWorld/(2*bubbleRadius) - 2) do
-		local newBubble = BubbleClass.newRoot((world.leftWall+(1+2*(i-1))*bubbleRadius), getRandomColor())
-		local bubChild = nil
-		table.insert(bubbles, newBubble)
-		while (math.random() < bubbleInit_ProbaChild) do
-			bubChild = BubbleClass.newChild(newBubble, (math.pi/3), getRandomColor())
-			table.insert(bubbles, bubChild)
-			newBubble = bubChild
-		end
-	end
+	bubbles:initialize()
 end
 
 function love.update(dt)
-
-	-- world (wall & ceiling)
-	world:update(dt)
-
-	-- bubbles
-	for k,b in ipairs(bubbles) do
-		b:update(dt)
+	if (not menu.startScreen.gameStart) then
+		menu.startScreen:update(dt)
+	elseif (world.triggerWin) then
+		menu.winScreen:update(dt)
+	elseif(world.triggerLost) then
+		menu.lostScreen:update(dt)
+	else
+		-- world (walls, ceiling & bubbles)
+		world:update(dt)
+		-- player
+		player:update(dt)
 	end
-	for _,bid in ipairs(bubblesIdToRemove) do
-		bubbles.removeID(bid)
-	end
-	bubblesIdToRemove = {}
-
-	-- player
-	player:update(dt)
 end
 
 function love.draw()
-	world:draw()
-	player:draw()
-
-	for _,b in ipairs(bubbles) do
-		b:draw()
+	if (not menu.startScreen.gameStart) then
+		menu.startScreen:draw()
+	elseif (world.triggerWin) then
+		menu.winScreen:draw()
+	elseif(world.triggerLost) then
+		menu.lostScreen:draw()
+	else
+		world:draw()
+		player:draw()
 	end
 end
 
@@ -59,14 +50,27 @@ function love.mousereleased(x,y,b)
 	elseif (b == "wu") then
 		-- precision aiming (TODO)
 	elseif (b == "wd") then
-		-- precision aiming (TODO)
+		player.nextBulletColor = getRandomColor()
 	end
 end
 
 function love.keyreleased(k)
-	if (k == "d") then
-		bubbles:printTree()
-	elseif (k == "p") then
-		DEBUG = not DEBUG
+	if (not menu.startScreen.gameStart) then
+		menu.startScreen:keyreleased(k)
+	elseif (world.triggerWin) then
+		menu.winScreen:keyreleased(k)
+	elseif(world.triggerLost) then
+		menu.lostScreen.keyreleased(k)
+	else
+		if (k == "d") then
+			bubbles:printTree()
+		elseif (k == "p") then
+			DEBUG = not DEBUG
+		elseif (k == "k") then
+			-- kill all bubbles
+			for _,b in ipairs(bubbles) do
+				b:triggerDead()
+			end
+		end
 	end
 end

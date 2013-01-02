@@ -21,14 +21,14 @@ end
 -- CLASS METHODS
 
 BubbleBulletClass.update = function(bbullet, dt)
-	bbullet.x = bbullet.x + bbullet.sx*dt
-	bbullet.y = bbullet.y + bbullet.sy*dt
+	bbullet.x = bbullet:getX() + bbullet.sx*dt
+	bbullet.y = bbullet:getY() + bbullet.sy*dt
 
 	-- collision with wall
-	if (bbullet.x < bbulletRadius + world.leftWall) then
+	if (bbullet:getX() < bbulletRadius + world.leftWall) then
 		sound_bounce:play()
 		bbullet.sx = math.abs(bbullet.sx)
-	elseif (bbullet.x > world.rightWall-bbulletRadius) then
+	elseif (bbullet:getX() > world.rightWall-bbulletRadius) then
 		sound_bounce:play()
 		bbullet.sx = -1*math.abs(bbullet.sx)
 	end
@@ -45,10 +45,14 @@ BubbleBulletClass.update = function(bbullet, dt)
 		end
 	end
 	-- collision with ceiling
-	if (bbullet.y < bbulletRadius + world.ceiling) then
+	if (bbullet:getY() < bbulletRadius + world.ceiling) then
 		sound_stick:play()
 		-- create new bubble
 		table.insert(bubbles, BubbleClass.newRoot(bbullet.x, bbullet.color))
+		bbullet:remove()
+	end
+	-- outOfScreen (shouldn't happen but you never know)
+	if (bbullet:getY() > hScr) then
 		bbullet:remove()
 	end
 end
