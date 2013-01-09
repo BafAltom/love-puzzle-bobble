@@ -52,14 +52,31 @@ world.update = function(world, dt)
 end
 
 world.draw = function(world)
-	love.graphics.setColor(20,20,20)
+	-- background
+	love.graphics.setColor(0,0,10)
+	love.graphics.rectangle("fill",0,0,wScr, hScr)
+
+	-- ceiling
+	love.graphics.setColor(50,100,100)
 	love.graphics.rectangle("fill", world.leftWall, 0, (world.rightWall - world.leftWall), world.ceiling)
-	love.graphics.setColor(255,255,255)
+	-- left wall
+	love.graphics.setColor(50,100,100)
+	love.graphics.rectangle("fill",0,0,world.leftWall,hScr)
+	love.graphics.setColor(0,0,0)
 	love.graphics.line(world.leftWall, 0, world.leftWall,hScr)
+	-- right wall
+	love.graphics.setColor(50,100,100)
+	love.graphics.rectangle("fill",world.rightWall,0,uiSize,hScr)
+	love.graphics.setColor(0,0,0)
 	love.graphics.line(world.rightWall, 0, world.rightWall,hScr)
+
+	love.graphics.setColor(0,0,0)
+	love.graphics.print("Level : "..world.level, 10, 10)
 
 	-- bubbles
 	for _,b in ipairs(bubbles) do
 		b:draw()
 	end
+
+
 end

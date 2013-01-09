@@ -81,7 +81,10 @@ end
 BubbleClass.draw = function(bubble)
 	local _col = bubbleColors[bubble.color]
 	love.graphics.setColor(_col[1], _col[2], _col[3])
-	love.graphics.circle("fill", bubble:getX(), bubble:getY(), bubble:size()) 
+	love.graphics.setColorMode("combine")
+	local _scalePic = (2*bubbleRadius/pic_bubble:getWidth())
+	love.graphics.draw(pic_bubble, bubble:getX()-bubbleRadius, bubble:getY()-bubbleRadius, 0,  _scalePic, _scalePic)
+	--love.graphics.circle("line", bubble:getX(), bubble:getY(), bubble:size()) 
 
 	if (DEBUG) then
 		-- parent line

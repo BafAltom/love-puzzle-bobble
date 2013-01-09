@@ -6,7 +6,7 @@ wScr = love.graphics.getWidth()
 hScr = love.graphics.getHeight()
 DEBUG = false
 
-bubbleRadius = 30 -- 20
+bubbleRadius = 32 -- 20
 bubbleColors =
 	{
 		{255,0,0},
@@ -29,6 +29,7 @@ end
 
 playerRadius = 50
 playerCoolDown = 1
+playerPupilSize = 5
 
 bbulletRadius = bubbleRadius
 bbulletSpeed = 1000
@@ -37,9 +38,9 @@ bbulletSpeed = 1000
 uiSize = 100
 wWorld = wScr - uiSize
 maxLevel = 3
-ceilingDropTime = {1, 0.1, 0.01}
-ceilingDropSize = {1, 1, 1}
-bubbleInit_ProbaChild = {0.01, 0.2, 0.3}
+ceilingDropTime = {2, 2, 0.02}
+ceilingDropSize = {5, 10, 1}
+bubbleInit_ProbaChild = {0.1, 0.2, 0.5}
 
 function round(num) 
 	if num >= 0 then return math.floor(num+.5) 

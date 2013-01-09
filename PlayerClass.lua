@@ -32,24 +32,63 @@ PlayerClass.update = function(player, dt)
 	end
 end
 
+PlayerClass.getPic = function(player)
+	if (player.coolDown > 0) then
+		return pic_player_cooldown
+	else
+		return pic_player
+	end
+end
+
+PlayerClass.drawEyes = function(player)
+	local _pColor = bubbleColors[player.nextBulletColor]
+	-- eyes
+	love.graphics.setColor(_pColor[1], _pColor[2], _pColor[3], _alpha)
+	local _eyeRadius = playerRadius/4
+	local _eyeY = player:getY() - playerRadius/2
+	local _leftEyeX = player:getX() - playerRadius/2
+	local _rightEyeX = player:getX() + playerRadius/2
+	love.graphics.circle("fill", _leftEyeX, _eyeY, _eyeRadius)
+	love.graphics.circle("fill", _rightEyeX, _eyeY, _eyeRadius)
+
+	-- pupil
+	local _mx, _my = love.mouse.getPosition()
+	local _leftAngle = bafaltomAngle(_leftEyeX, _eyeY, _mx, _my)
+	local _rightAngle = bafaltomAngle(_rightEyeX, _eyeY, _mx, _my)
+	local _pupilDistance = _eyeRadius - playerPupilSize
+	local _pLX = _leftEyeX + math.cos(_leftAngle)*_pupilDistance
+	local _pLY = _eyeY + math.sin(_leftAngle)*_pupilDistance
+	local _pRX = _rightEyeX + math.cos(_rightAngle)*_pupilDistance
+	local _pRY = _eyeY + math.sin(_rightAngle)*_pupilDistance
+	love.graphics.setColor(0,0,0)
+	love.graphics.circle("fill", _pLX, _pLY, playerPupilSize)
+	love.graphics.circle("fill", _pRX, _pRY, playerPupilSize)
+end
+
 PlayerClass.draw = function(player)
 	local _pColor = bubbleColors[player.nextBulletColor]
-
-	-- choose color
 	local _alpha = 255
-	if (player.coolDown > 0) then _alpha = 50 end
-	love.graphics.setColor(_pColor[1], _pColor[2], _pColor[3], _alpha)
-
-	-- Round thing
-	love.graphics.circle("fill", player:getX(), player:getY(), player:size())
 	local _o = player:getOrientation()
-		-- visor
-		love.graphics.line(player:getX(), player:getY(), player:getX()+math.cos(_o)*100, player:getY() + math.sin(_o)*100)
+	if (player.coolDown > 0) then _alpha = 50 end
+
+	love.graphics.setColor(_pColor[1], _pColor[2], _pColor[3], _alpha)
+	-- visor
+	love.graphics.line(player:getX(), player:getY(), player:getX()+math.cos(_o)*100, player:getY() + math.sin(_o)*100)
 	if (player.coolDown <= 0) then
 		-- aim line
 		love.graphics.setColor(_pColor[1], _pColor[2], _pColor[3], 100)
 		local _tx, _ty = player:getAimIntersection()
 		drawDashedLine(player:getX(), player:getY(), _tx, _ty, 5, 5)
+	end
+
+	-- Face
+	love.graphics.setColorMode("replace")
+	local _playerScale = (2*playerRadius)/pic_player:getWidth()
+	local _pic = player:getPic()
+	love.graphics.draw(_pic, player:getX() - playerRadius, player:getY() - playerRadius, 0, _playerScale, _playerScale)
+
+	if (not (player.coolDown > 0)) then
+		player:drawEyes()
 	end
 
 	if (DEBUG) then
@@ -104,6 +143,7 @@ end
 
 PlayerClass.getNextBulletColor = function(player)
 	if (#bubbles == 0) then
+		print("random")
 		return getRandomColor()
 	end
 	local _availableColors = {}
@@ -116,13 +156,18 @@ PlayerClass.getNextBulletColor = function(player)
 			end
 		end
 		-- if not, add it to the set of available ones
-		if (not _alreadySeen) then
+		if ((not _alreadySeen) and (not b.dead)) then
 			table.insert(_availableColors, b.color)
 		end
+		_alreadySeen = false
 	end
 	assert (#_availableColors <= bubbleColorNbr)
 	local _chosenColor = math.random(#_availableColors)
-	return _chosenColor
+	for _,c in ipairs(_availableColors) do
+		print(c, bubbleColors[c][1], bubbleColors[c][2], bubbleColors[c][3])
+	end
+	print("---- chosen", _chosenColor)
+	return _availableColors[_chosenColor]
 end
 
 -------------------------------------------------------------------

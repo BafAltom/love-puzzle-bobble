@@ -65,10 +65,16 @@ end
 
 menu.lostScreen = {}
 
-menu.lostScreen.draw = function()
+menu.lostScreen.draw = function(lS)
 	love.graphics.setColor(0,0,0)
 	love.graphics.rectangle("fill", 0,0,wScr,hScr)
 
 	love.graphics.setColor(255,255,255)
 	love.graphics.print("LOST", wScr/2, hScr/2)
+end
+
+menu.lostScreen.update = function(lS, dt)
+end
+
+menu.winScreen.keyreleased = function(lS, k)
 end
