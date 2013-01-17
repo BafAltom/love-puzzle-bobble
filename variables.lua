@@ -41,7 +41,7 @@ bubbleYLimit = 50 -- player loose when a non-dead bubble go past this limit
 maxLevel = 3
 ceilingDropTime = {2, 2, 0.02}
 ceilingDropSize = {5, 10, 1}
-bubbleInit_ProbaChild = {0.5, 0.2, 0.5}
+bubbleInit_ProbaChild = {0.6, 0.2, 0.5}
 
 function round(num) 
 	if num >= 0 then return math.floor(num+.5) 

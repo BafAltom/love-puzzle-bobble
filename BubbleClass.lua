@@ -24,7 +24,13 @@ BubbleClass.update = function(bubble, dt)
 	end
 
 	if (not bubble:isRoot() and not bubble.dead) then
-		if (bubble.father.dead) then bubble.dead = true end
+		if (bubble.father.dead) then
+			local _oldFather = bubble.father
+			bubble:findNewFather()
+			if (_oldFather == bubble.father) then
+				bubble.dead = true
+			end
+		end
 	end
 
 	if (bubble.dead) then
@@ -63,14 +69,48 @@ BubbleClass.addMatch = function(bubble, matchedBubble)
 	end
 end
 
-BubbleClass.searchForColorMatch = function(bubble)
+BubbleClass.findNeighbors = function(bubble)
+	neighbors = {}
 	for _,eachB in ipairs(bubbles) do
-		if (distance2Entities(bubble, eachB) <= (2.5*bubbleRadius)
-		and bubble:sameColorAs(eachB)) then
+		if (eachB.id ~= bubble.id and distance2Entities(bubble, eachB) <= 2.5*bubbleRadius) then
+			table.insert(neighbors, eachB)
+		end
+	end
+	return neighbors
+end
+
+BubbleClass.findNewFather = function(bubble)
+	for _,bubbleNeighbor in ipairs(bubble:findNeighbors()) do
+		if (not bubbleNeighbor.dead) then
+			-- candidate, but we must check if this assignation will create a loop
+			local _foundLoop = false
+			local _b = bubbleNeighbor
+			while (not _b:isRoot()) do
+				if (_b.father.id == bubble.id) then
+					_foundLoop = true
+					break
+				end
+				_b = _b.father
+			end
+			if (not _foundLoop) then
+				local _oldFather = bubble.father
+				bubble.father = bubbleNeighbor
+				bubble.angle = BubbleClass.nearestAcceptedAngle(-1*bafaltomAngle2Entities(bubble, bubbleNeighbor))
+				_oldFather:removeChild(bubble.id)
+				table.insert(bubble.father.children, bubble)
+				break
+			end
+		end
+	end
+end
+
+BubbleClass.searchForColorMatch = function(bubble)
+	for _,bubbleNeighbor in ipairs(bubble:findNeighbors()) do
+		if (bubble:sameColorAs(bubbleNeighbor)) then
 			-- match this bubble
-			bubble:addMatch(eachB)
+			bubble:addMatch(bubbleNeighbor)
 			-- match this bubble's matches
-			for bubMatch in pairs(eachB.colorMatchDict) do
+			for bubMatch in pairs(bubbleNeighbor.colorMatchDict) do
 				bubble:addMatch(bubMatch)
 			end
 		end
@@ -116,7 +156,6 @@ BubbleClass.getX = function(bubble)
 	if (bubble:isRoot()) then
 		return bubble.x
 	else
-		-- trigonometry, deal with it
 		return bubble.father:getX() + math.cos(bubble.angle)*(bubble:size() + bubble.father:size())
 	end
 end
@@ -125,7 +164,6 @@ BubbleClass.getY = function(bubble)
 	if (bubble:isRoot()) then
 		return bubble:size() + world.ceiling + bubble.deadOffset
 	else
-		-- trigonometry, deal with it
 		return bubble.father:getY() + math.sin(bubble.angle)*(bubble:size() + bubble.father:size()) + bubble.deadOffset
 	end
 end
@@ -171,26 +209,34 @@ BubbleClass.nearestAcceptedAngle = function(a)
 	return (_slot*(math.pi/3))
 end
 
-BubbleClass.busySlot = function(x,y, bubbleCollections)
+BubbleClass.acceptedPosition = function(x,y, bubbleCollections)
+	-- within world?
+	if (x < world.leftWall or x > world.rightWall or y < world.ceiling) then
+		return false
+	end
+
+	-- slot not occupied?
 	for _, b in ipairs(bubbleCollections) do
-		if (b:getX() == x and b:getY() == y) then
-			return true
+		if (distance2Points(x, y, b:getX(), b:getY()) < bubbleRadius) then
+			return false
 		end
 	end
-	return false
+
+	-- ok then
+	return true
 end
 
 BubbleClass.newRoot = function(x,c)
-	assert (not BubbleClass.busySlot(x,0, bubbles), "There is already a bubble here!")
+	assert (BubbleClass.acceptedPosition(x,0, bubbles), "There is already a bubble here!")
 	local _newX = BubbleClass.nearestAcceptedX(x)
 	return BubbleClass.new(nil, nil, _newX,c)
 end
 
 BubbleClass.newChild = function(f,a,c)
 	local _newA = BubbleClass.nearestAcceptedAngle(a)
-	assert (not BubbleClass.busySlot(
+	assert (BubbleClass.acceptedPosition(
 		f:getX() + math.cos(_newA)*(bubbleRadius + f:size()),
-		f:getY() + math.cos(_newA)*(bubbleRadius + f:size()),
+		f:getY() + math.sin(_newA)*(bubbleRadius + f:size()),
 		bubbles), "There is already a bubble here!")
 	child = BubbleClass.new(f,_newA,nil,c)
 	table.insert(f.children, child)
@@ -205,7 +251,7 @@ BubbleClass.new = function(father, angle, x, color)
 	setmetatable(bubble, {__index = BubbleClass})
 
 	bubble.id = BubbleClass.getNextID()
-	bubble.father = nil -- do not trust this too much, only contains one father
+	bubble.father = nil
 	bubble.x = nil
 	bubble.angle = nil
 	bubble.color = color
@@ -261,25 +307,33 @@ bubbles.printTree = function(bubbleList)
 end
 
 bubbles.initialize = function()
-	print("wWorld", wWorld)
-	print("bubbleRadius", bubbleRadius)
-	print("number of bubbles", math.floor(wWorld/(2*bubbleRadius)))
 	for i =1,math.floor(wWorld/(2*bubbleRadius)) do
 		local newBubble = BubbleClass.newRoot(world.leftWall+bubbleRadius+(i-1)*(2*bubbleRadius), getRandomColor())
 		local bubChild, angle = nil, nil
 		table.insert(bubbles, newBubble)
 		while (math.random() < bubbleInit_ProbaChild[world.level]) do
-			-- choose angle of the child
-			angle = (math.random() < 0.5) and math.pi/3 or 2*(math.pi/3) -- basically : choose one of the two randomly
+			-- choose angle of the child (left or right)
+			angle = (math.random() < 0.5) and math.pi/3 or 2*(math.pi/3)
+			angle = BubbleClass.nearestAcceptedAngle(angle)
+
 			if (newBubble:getX() < world.leftWall + 2*bubbleRadius) then
 				angle = (math.pi/3)
 			elseif (newBubble:getX() > world.rightWall - 2*bubbleRadius) then
 				angle = 2*(math.pi/3)
 			end
-			-- generate child
-			bubChild = BubbleClass.newChild(newBubble, angle, getRandomColor())
-			table.insert(bubbles, bubChild)
-			newBubble = bubChild
+
+			if (BubbleClass.acceptedPosition(
+			 newBubble:getX() + math.cos(angle)*2*bubbleRadius,
+			 newBubble:getY() + math.sin(angle)*2*bubbleRadius,
+			 bubbles)) then
+				-- generate child
+				bubChild = BubbleClass.newChild(newBubble, angle, getRandomColor())
+				table.insert(bubbles, bubChild)
+				newBubble = bubChild
+			else
+				print("collision averted, thank me later")
+				break -- no more generation
+			end
 		end
 	end
 end

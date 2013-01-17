@@ -76,5 +76,5 @@ end
 menu.lostScreen.update = function(lS, dt)
 end
 
-menu.winScreen.keyreleased = function(lS, k)
+menu.lostScreen.keyreleased = function(lS, k)
 end
