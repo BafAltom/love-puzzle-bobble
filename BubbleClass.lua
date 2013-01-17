@@ -102,9 +102,9 @@ end
 
 BubbleClass.isRoot = function(bubble)
 	return (bubble.father == nil)
-BubbleClass
+end
 
-end.size = function(bubble)
+BubbleClass.size = function(bubble)
 	return bubbleRadius
 end
 
