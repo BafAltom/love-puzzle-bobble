@@ -45,12 +45,14 @@ function love.draw()
 end
 
 function love.mousereleased(x,y,b)
-	if (b == "l") then
-		player:shoot(x,y)
-	elseif (b == "wu") then
-		-- precision aiming (TODO)
-	elseif (b == "wd") then
-		player.nextBulletColor = getRandomColor()
+	if (menu.startScreen.gameStart) then
+		if (b == "l") then
+			player:shoot(x,y)
+		elseif (b == "wu") then
+			-- precision aiming (TODO)
+		elseif (b == "wd") then
+			player.nextBulletColor = getRandomColor()
+		end
 	end
 end
 

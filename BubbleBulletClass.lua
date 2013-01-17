@@ -60,7 +60,9 @@ end
 
 BubbleBulletClass.draw = function(bbullet)
 	love.graphics.setColor(bubbleColors[bbullet.color])
-	love.graphics.circle("fill", bbullet:getX(), bbullet:getY(), bbullet:size())
+	love.graphics.setColorMode("combine")
+	local _scalePic = (2*bbulletRadius/pic_bubble:getWidth())
+	love.graphics.draw(pic_bubble, bbullet:getX()-bbulletRadius, bbullet:getY()-bbulletRadius, 0,  _scalePic, _scalePic)
 end
 
 BubbleBulletClass.remove = function(bbullet)

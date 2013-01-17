@@ -9,12 +9,12 @@ DEBUG = false
 bubbleRadius = 32 -- 20
 bubbleColors =
 	{
-		{255,0,0},
-		{0,255,0},
-		{0,0,255},
-		{255,255,0},
-		{255,0,255},
-		{0,255,255},
+		{255,100,100},
+		{100,255,100},
+		{100,100,255},
+		{255,255,100},
+		{255,100,255},
+		{100,255,255},
 		{255,255,255}
 	}
 bubbleColorNbr = #bubbleColors
@@ -35,12 +35,13 @@ bbulletRadius = bubbleRadius
 bbulletSpeed = 1000
 
 
-uiSize = 100
-wWorld = wScr - uiSize
+uiSize = 112
+wWorld = wScr - 2*uiSize
+bubbleYLimit = 50 -- player loose when a non-dead bubble go past this limit
 maxLevel = 3
 ceilingDropTime = {2, 2, 0.02}
 ceilingDropSize = {5, 10, 1}
-bubbleInit_ProbaChild = {0.1, 0.2, 0.5}
+bubbleInit_ProbaChild = {0.5, 0.2, 0.5}
 
 function round(num) 
 	if num >= 0 then return math.floor(num+.5) 

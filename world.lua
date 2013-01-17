@@ -78,5 +78,8 @@ world.draw = function(world)
 		b:draw()
 	end
 
+	love.graphics.setColor(150, 100, 100)
+
+	love.graphics.line(world.leftWall, hScr-bubbleYLimit, world.rightWall, hScr-bubbleYLimit)
 
 end

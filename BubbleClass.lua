@@ -19,7 +19,7 @@ end
 -- CLASS METHODS
 
 BubbleClass.update = function(bubble, dt)
-	if (bubble.colorMatchCount >= (bubbleSequenceSize - 1)) then
+	if (bubble.colorMatchCount >= (bubbleSequenceSize)) then
 		bubble:triggerDead()
 	end
 
@@ -59,6 +59,7 @@ BubbleClass.addMatch = function(bubble, matchedBubble)
 	if (bubble.colorMatchDict[matchedBubble] == nil) then
 		bubble.colorMatchDict[matchedBubble] = true
 		bubble.colorMatchCount = bubble.colorMatchCount + 1
+		matchedBubble:addMatch(bubble)
 	end
 end
 
@@ -72,8 +73,6 @@ BubbleClass.searchForColorMatch = function(bubble)
 			for bubMatch in pairs(eachB.colorMatchDict) do
 				bubble:addMatch(bubMatch)
 			end
-			-- match ourself for the other bubble
-			eachB:addMatch(bubble)
 		end
 	end
 end
@@ -84,7 +83,6 @@ BubbleClass.draw = function(bubble)
 	love.graphics.setColorMode("combine")
 	local _scalePic = (2*bubbleRadius/pic_bubble:getWidth())
 	love.graphics.draw(pic_bubble, bubble:getX()-bubbleRadius, bubble:getY()-bubbleRadius, 0,  _scalePic, _scalePic)
-	--love.graphics.circle("line", bubble:getX(), bubble:getY(), bubble:size()) 
 
 	if (DEBUG) then
 		-- parent line
@@ -104,9 +102,9 @@ end
 
 BubbleClass.isRoot = function(bubble)
 	return (bubble.father == nil)
-end
+BubbleClass
 
-BubbleClass.size = function(bubble)
+end.size = function(bubble)
 	return bubbleRadius
 end
 
@@ -160,12 +158,12 @@ end
 -------------------------------------------------------------------
 
 BubbleClass.nearestAcceptedX = function(x)
-	local _maxSlot = (world.rightWall + bubbleRadius)/(2*bubbleRadius)
-	local _minSlot = (world.leftWall + bubbleRadius)/(2*bubbleRadius)
-	local _slot = round(x/(2*bubbleRadius))
+	local _maxSlot = math.floor(wWorld/(2*bubbleRadius))
+	local _minSlot = 0
+	local _slot = math.floor((x - world.leftWall)/(2*bubbleRadius))
 	_slot = math.max(_minSlot, _slot)
 	_slot = math.min(_maxSlot, _slot)
-	return _slot*2*bubbleRadius
+	return world.leftWall + bubbleRadius +_slot*2*bubbleRadius
 end
 
 BubbleClass.nearestAcceptedAngle = function(a)
@@ -263,8 +261,11 @@ bubbles.printTree = function(bubbleList)
 end
 
 bubbles.initialize = function()
-	for i =1,math.floor(wWorld/(2*bubbleRadius) - 2) do
-		local newBubble = BubbleClass.newRoot((world.leftWall+(1+2*(i-1))*bubbleRadius), getRandomColor())
+	print("wWorld", wWorld)
+	print("bubbleRadius", bubbleRadius)
+	print("number of bubbles", math.floor(wWorld/(2*bubbleRadius)))
+	for i =1,math.floor(wWorld/(2*bubbleRadius)) do
+		local newBubble = BubbleClass.newRoot(world.leftWall+bubbleRadius+(i-1)*(2*bubbleRadius), getRandomColor())
 		local bubChild, angle = nil, nil
 		table.insert(bubbles, newBubble)
 		while (math.random() < bubbleInit_ProbaChild[world.level]) do

@@ -143,7 +143,6 @@ end
 
 PlayerClass.getNextBulletColor = function(player)
 	if (#bubbles == 0) then
-		print("random")
 		return getRandomColor()
 	end
 	local _availableColors = {}
@@ -163,10 +162,6 @@ PlayerClass.getNextBulletColor = function(player)
 	end
 	assert (#_availableColors <= bubbleColorNbr)
 	local _chosenColor = math.random(#_availableColors)
-	for _,c in ipairs(_availableColors) do
-		print(c, bubbleColors[c][1], bubbleColors[c][2], bubbleColors[c][3])
-	end
-	print("---- chosen", _chosenColor)
 	return _availableColors[_chosenColor]
 end
 
