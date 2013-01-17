@@ -1,7 +1,7 @@
 love-puzzle-bobble
 ==================
 
-Clone of Puzzle Bobble in [LÖVE](www.love2d.org "It's free!"), idk why.
+Clone of Puzzle Bobble in [LÖVE](http://www.love2d.org "It's free!"), idk why.
 
 
 WORKING
