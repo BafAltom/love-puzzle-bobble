@@ -41,12 +41,12 @@ menu.startScreen.exit = function(sS)
 end
 
 menu.startScreen.displayInstructions = function(sS)
-	sS.text = "Match bubbles of the same colors\n\nUse mouse to aim\nLeft click to shoot"
+	sS.text = "Goal :\nMatch bubbles of the same colors\n\nInstructions:\nUse mouse to aim\nLeft click to shoot"
 	sS.displayText = true
 end
 
 menu.startScreen.displayCredits = function(sS)
-	sS.text = "Made by Altom for the OGAM challenge\n\nDedicated to a pretty Cookie"
+	sS.text = "Made by Altom for the OGAM challenge\n\nMusic by Shawn Bayern\n(CC BY-NC-SA 3.0)\n\nFont by Felix Braden\nDedicated to a pretty Cookie"
 	sS.displayText = true
 end
 
@@ -66,11 +66,11 @@ menu.startScreen.draw = function(sS)
 	love.graphics.printf("A game with bubbles", 0, hScr/5 + 80, wScr, "center")
 
 	if (sS.displayText) then
-		love.graphics.setFont(font_bigfish_medium)
+		love.graphics.setFont(font_bigfish_small)
 		love.graphics.setColor(0,0,0)
 		love.graphics.printf(sS.text, wScr/4, hScr/5 + 150, wScr/2, "center")
 		love.graphics.setColor(255,255,255)
-		love.graphics.setFont(font_bigfish_small)
+		love.graphics.setFont(font_bigfish_medium)
 		love.graphics.printf("RETURN", 0, hScr - 50, wScr, "center")
 	else
 		love.graphics.setFont(font_bigfish_medium)

@@ -148,6 +148,7 @@ BubbleClass.draw = function(bubble)
 		-- internal status
 		love.graphics.setColor(0,0,0)
 		love.graphics.print(bubble.id.."\n"..bubble.colorMatchCount, bubble:getX(), bubble:getY() - 10)
+	love.graphics.setColorMode("replace")
 	end
 end
 
