@@ -14,7 +14,7 @@ WORKING
 
 TODO
 ----
-- Prettier graphics
-- Prettier menu
-- Tweaking
+- General beautifying
+- Figure out license and stuff (you can use everything I did however you like, the music isn't mine)
+
 (i.e. "the boring part")
