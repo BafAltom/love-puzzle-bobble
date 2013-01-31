@@ -45,6 +45,7 @@ uiSize = 112
 wWorld = wScr - 2*uiSize
 bubbleYLimit = 70 -- player loose when a non-dead bubble go past this limit
 maxLevel = 3
+
 ceilingDropTime = {2, 2, 0.02}
 ceilingDropSize = {5, 10, 1}
 bubbleInit_ProbaChild = {0.6, 0.2, 0.5}

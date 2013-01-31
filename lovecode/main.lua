@@ -17,7 +17,7 @@ function love.load()
 
 	bubbles:initialize()
 
-	-- love.audio.setVolume(0)
+	love.audio.setVolume(1)
 
 	if (not love.web) then music_menu:play() end
 end

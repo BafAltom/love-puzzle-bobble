@@ -18,8 +18,9 @@ end
 
 menu.startScreen = {}
 
-
 menu.startScreen.gameStart = false
+menu.startScreen.displayText = false
+menu.startScreen.text = ""
 
 menu.startScreen.circles = {}
 menu.startScreen.circles.radius = 50
@@ -39,6 +40,15 @@ menu.startScreen.exit = function(sS)
 	love.event.push("quit")
 end
 
+menu.startScreen.displayInstructions = function(sS)
+	sS.text = "Match bubbles of the same colors\n\nUse mouse to aim\nLeft click to shoot"
+	sS.displayText = true
+end
+
+menu.startScreen.displayCredits = function(sS)
+	sS.text = "Made by Altom for the OGAM challenge\n\nDedicated to a pretty Cookie"
+	sS.displayText = true
+end
 
 menu.startScreen.draw = function(sS)
 	love.graphics.setColor(100,100,255)
@@ -53,18 +63,26 @@ menu.startScreen.draw = function(sS)
 	love.graphics.setFont(font_bigfish_large)
 	love.graphics.printf("BubblePÖP", wScr*0.25, hScr/5, wScr*0.5, "center")
 	love.graphics.setFont(font_bigfish_small)
-	love.graphics.printf("A clone of some online game by Altom", wScr*0.25, hScr/5 + 80, wScr*0.5, "center")
+	love.graphics.printf("A game with bubbles", 0, hScr/5 + 80, wScr, "center")
 
-	love.graphics.setFont(font_bigfish_medium)
-	for i,o in ipairs(sS.options) do
-		if (i == sS.options.selected) then
-			love.graphics.setColor(255,255,255)
-		else
-			love.graphics.setColor(0,0,0)
+	if (sS.displayText) then
+		love.graphics.setFont(font_bigfish_medium)
+		love.graphics.setColor(0,0,0)
+		love.graphics.printf(sS.text, wScr/4, hScr/5 + 150, wScr/2, "center")
+		love.graphics.setColor(255,255,255)
+		love.graphics.setFont(font_bigfish_small)
+		love.graphics.printf("RETURN", 0, hScr - 50, wScr, "center")
+	else
+		love.graphics.setFont(font_bigfish_medium)
+		for i,o in ipairs(sS.options) do
+			if (i == sS.options.selected) then
+				love.graphics.setColor(255,255,255)
+			else
+				love.graphics.setColor(0,0,0)
+			end
+			love.graphics.printf(o.text, wScr*0.33, hScr/2 + i*40, wScr*0.33, "center")
 		end
-		love.graphics.printf(o.text, wScr*0.33, hScr/2 + i*40, wScr*0.33, "center")
 	end
-
 end
 
 menu.startScreen.update = function(sS, dt)
@@ -81,7 +99,11 @@ end
 menu.startScreen.keyreleased = function(sS, k)
 	if (k == "return") then
 		sound_shoot:play()
-		sS.options[sS.options.selected].action(sS)
+		if (sS.displayText) then
+			sS.displayText = false
+		else
+			sS.options[sS.options.selected].action(sS)
+		end
 	elseif(k == "up") then
 		sound_bounce:play()
 		sS.options.selected = math.max(1, sS.options.selected - 1)
@@ -94,7 +116,9 @@ end
 menu.startScreen.options = {}
 menu.startScreen.options.selected = 1
 menu.startScreen.options[1] = menuOptionClass.new("Start Game", menu.startScreen.launchGame)
-menu.startScreen.options[2] = menuOptionClass.new("Exit", menu.startScreen.exit)
+menu.startScreen.options[2] = menuOptionClass.new("Instructions", menu.startScreen.displayInstructions)
+menu.startScreen.options[3] = menuOptionClass.new("Credits", menu.startScreen.displayCredits)
+menu.startScreen.options[4] = menuOptionClass.new("Exit", menu.startScreen.exit)
 
 -----------------------------------------------------
 
