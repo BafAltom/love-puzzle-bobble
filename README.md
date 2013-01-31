@@ -9,6 +9,7 @@ WORKING
 - Gameplay (you can shoot bubbles and they will drop when you match three)
 - Level (random) generation
 - Basic levels structure (get harder the more you win)
+- Basic support of [love-webplayer](https://github.com/ghoulsblade/love-webplayer)
 
 
 TODO
