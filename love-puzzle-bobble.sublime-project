@@ -1,0 +1,20 @@
+{
+    "folders":
+    [
+        {
+            "follow_symlinks": true,
+            "path": "./",
+            "name": "Bubble Pöp",
+            // "file_exclude_patterns": [""],
+            // "folder_exclude_patterns": [""]
+        }
+    ],
+    "build_systems":
+    [
+        {
+            "name": "LÖVE run",
+            "shell_cmd": "cd lovecode && love ./",
+            "working_dir": "$project_path"
+        }
+    ]
+}
