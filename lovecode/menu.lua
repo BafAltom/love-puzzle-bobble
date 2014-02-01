@@ -96,6 +96,16 @@ menu.startScreen.update = function(sS, dt)
 	end
 end
 
+menu.startScreen.keypressed = function(sS, k)
+    if(k == "up") then
+        sound_bounce:play()
+        sS.options.selected = math.max(1, sS.options.selected - 1)
+    elseif(k == "down") then
+        sound_bounce:play()
+        sS.options.selected = math.min(#sS.options, sS.options.selected + 1)
+    end
+end
+
 menu.startScreen.keyreleased = function(sS, k)
 	if (k == "return") then
 		sound_shoot:play()
@@ -104,12 +114,8 @@ menu.startScreen.keyreleased = function(sS, k)
 		else
 			sS.options[sS.options.selected].action(sS)
 		end
-	elseif(k == "up") then
-		sound_bounce:play()
-		sS.options.selected = math.max(1, sS.options.selected - 1)
-	elseif(k == "down") then
-		sound_bounce:play()
-		sS.options.selected = math.min(#sS.options, sS.options.selected + 1)
+    elseif(k == "escape") then
+        love.event.quit()
 	end
 end
 

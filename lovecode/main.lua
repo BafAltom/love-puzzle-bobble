@@ -62,6 +62,12 @@ function love.mousereleased(x,y,b)
 	end
 end
 
+function love.keypressed(k)
+    if (not menu.startScreen.gameStart) then
+        menu.startScreen:keypressed(k)
+    end
+end
+
 function love.keyreleased(k)
 	if (k == "m") then
 		love.audio.setVolume(1-love.audio.getVolume())
